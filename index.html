@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Image Gallery</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="Header">
+      <header>
+        <h1>Gallery</h1>
+      </header>
+    </div>
+    <div class="Gallery">
+      <div class="Gallery__search">
+        <input type="text" name="" id="SearchText">
+        <input type="button" value="Search" id="SearchBtn">
+      </div>
+      <div id="Gallery" class="Gallery__contents">
+
+      </div>
+      <div class="Gallery__pager Pager">
+        <ul class="Pager__list">
+          <li class="Pager__item"><a href="#Gallery__1" class="Pager__anchur">1</a></li>
+          <li class="Pager__item"><a href="#Gallery__2" class="Pager__anchur">2</a></li>
+          <li class="Pager__item"><a href="#Gallery__3" class="Pager__anchur">3</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="Foonter">
+      <p>footer</p>
+    </div>
+  </div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+<script src="index.js"></script>
+</body>
+</html>

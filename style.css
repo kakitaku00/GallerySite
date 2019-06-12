@@ -1,0 +1,10 @@
+@charset "utf-8";
+
+#Gallery__2,
+#Gallery__3 {
+  display: none;
+}
+
+.Pager {
+  display: none;
+}
