@@ -51,6 +51,8 @@ a {
   display: none;
   flex-wrap: wrap;
   justify-content: center;
+  max-width: 850px;
+  margin: 0 auto;
 }
 
 .Gallery__block img {
