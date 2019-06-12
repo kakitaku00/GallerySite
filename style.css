@@ -1,10 +1,86 @@
 @charset "utf-8";
 
-#Gallery__2,
-#Gallery__3 {
+body {
+  color: #333;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","游ゴシック Medium",YuGothic,YuGothicM,"Hiragino Kaku Gothic ProN",メイリオ,Meiryo,sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+.Header {
+  background-color: #eee;
+  padding: 20px;
+}
+
+.Gallery {
+  padding: 20px;
+  min-height: 50vh;
+}
+
+.Gallery__search {
+  display: flex;
+  justify-content: center;
+}
+
+.Gallery__search__text {
+  border:0;
+  padding:10px;
+  font-size:1.3em;
+  border:solid 1px #ccc;
+  margin-right: 20px;
+  max-width:300px;
+  border-radius: 5px;
+}
+
+.Gallery__search__submit {
+  border:0;
+  padding:10px;
+  font-size:1.3em;
+  border:solid 1px #ccc;
+  max-width:100px;
+  border-radius: 5px;
+}
+
+.Gallery__contents {
+  margin: 15px 0 20px;
+}
+
+.Gallery__block {
   display: none;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.Gallery__block img {
+  margin: 5px;
 }
 
 .Pager {
-  display: none;
+  list-style: none;
+  display: flex;
+  justify-content: center;
+}
+
+.Pager__list {
+  border: 1px solid #333;
+  border-right: none;
+}
+
+.Pager__list:last-child {
+  border-right: 1px solid #333;
+}
+
+.Pager__anchur {
+  color: #333;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.Pager__anchur.is-active {
+  background-color: #333;
+  color: #fff;
 }

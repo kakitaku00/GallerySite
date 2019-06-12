@@ -11,7 +11,7 @@ $(function() {
   const api_key = "&api_key=ec560fe4b5414933f7dd557ed0ec7a78";
   const flickerMethod = "?method=flickr.photos.search";
   const flickrFrormat = "&format=json&nojsoncallback=1&extras=url_sq,date_taken"
-  const per_page = "&per_page=90";
+  const per_page = "&per_page=500";
   const page = "&page=1";
   const searchURI = flickrServer + flickerMethod + api_key + flickrFrormat + per_page + page + "&text=";
 
@@ -20,8 +20,9 @@ $(function() {
     // 検索文字が同じ時は処理をしない
     if (searchValue === searchText[0].value) {return}
     searchValue = searchText[0].value;
-    // Galleryの中を空にする
+    // Gallery/Pagerの中を空にする
     gallery.empty();
+    pager.empty();
     // 画像を取得
     getData(searchURI + searchValue);
   })
@@ -33,15 +34,20 @@ $(function() {
       url: uri,
       dataType: 'json'
     }).then(function(data) {
-      gallery.html(`
-        <div id="Gallery__1"></div>
-        <div id="Gallery__2"></div>
-        <div id="Gallery__3"></div>
-      `);
+      console.log(data)
+      // const pageTotal = data.photos.pages;
+      // 10個divを作る
+      for (let i = 1; i <= 10; i++) {
+        gallery.append(`<div class="Gallery__block" id="Gallery__${i}"></div>`);
+      }
       return data
-    }).then(function(data) {
+    })
+    .then(function(data) {
       const photosLength = data.photos.photo.length;
-      let pageNum = 0;
+      // ページ振り分け
+      let pageNum = 1;
+      const viewPhotoNum = 50;
+      let changePhotoNum = viewPhotoNum;
       for (let imageNum = 0; imageNum < photosLength; imageNum++) {
         const photo = data.photos.photo[imageNum];
         const farmId = photo.farm;
@@ -54,37 +60,38 @@ $(function() {
         const image = new Image(imageHeight, imageWidth);
         image.src = srcUrl;
 
-        // ページ振り分け
-        if (0 <= imageNum && imageNum < 30) {
-          pageNum = 1;
-          const targetContent = $(`#Gallery__${pageNum}`);
-          targetContent.append(image);
-        } else if (30 <= imageNum && imageNum < 60) {
-          pageNum = 2;
-          const targetContent = $(`#Gallery__${pageNum}`);
-          targetContent.append(image);
-        } else if (60 <= imageNum && imageNum < 90) {
-          pageNum = 3;
-          const targetContent = $(`#Gallery__${pageNum}`);
-          targetContent.append(image);
+        if (imageNum === changePhotoNum) {
+          pager.append(`<li class="Pager__list"><a href="#Gallery__${pageNum}" class="Pager__anchur">${pageNum}</a></li>`)
+          pageNum++;
+          changePhotoNum = viewPhotoNum * pageNum;
         }
+        const targetContent = $(`#Gallery__${pageNum}`);
+        targetContent.append(image);
       }
-    }).then(function() {
+    })
+    .then(function() {
+      $(".Pager__anchur:first").addClass("is-active")
+      $(".Pager__anchur").each(function() {
+        $(this).on("click", function(e) {
+          e.preventDefault();
+          $(".Pager__anchur").removeClass("is-active");
+          $(this).addClass("is-active");
+          const targetId = $(this).attr("href");
+          pageChange(targetId)
+        })
+      })
+    })
+    .then(function() {
+      // 最初のコンテンツを表示
+      $("#Gallery div:first").css("display","flex")
+      // ページャーを表示
       pager.show();
     })
   }
 
   // ページネーション
   function pageChange(targetId) {
-    gallery.children().hide()
-    $(targetId).show();
+    gallery.children().css("display","none");
+    $(targetId).css("display","flex");
   }
-
-  $(".Pager__anchur").each(function() {
-    $(this).on("click", function(e) {
-      e.preventDefault();
-      const targetId = $(this).attr("href");
-      pageChange(targetId)
-    })
-  })
 })
