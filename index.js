@@ -4,16 +4,16 @@ $(function() {
   const searchBtn = $("#SearchBtn");
   const gallery = $("#Gallery");
   const pager = $(".Pager");
-  let searchValue = "";
 
   // flickerAPI
   const flickrServer = "https://api.flickr.com/services/rest";
   const api_key = "&api_key=ec560fe4b5414933f7dd557ed0ec7a78";
   const flickerMethod = "?method=flickr.photos.search";
   const flickrFrormat = "&format=json&nojsoncallback=1&extras=url_sq,date_taken"
-  const per_page = "&per_page=500";
-  const page = "&page=1";
-  const searchURI = flickrServer + flickerMethod + api_key + flickrFrormat + per_page + page + "&text=";
+  let searchValue = "";
+  const per_page = "&per_page=50";
+  const page = "&page=";
+  let pageNum = 1
 
   // 検索
   searchBtn.on("click", function() {
@@ -21,11 +21,13 @@ $(function() {
     if (searchValue === searchText[0].value) {return}
     searchValue = searchText[0].value;
     // Gallery/Pagerの中を空にする
-    gallery.empty();
-    pager.empty();
+    resetGallery()
     // 画像を取得
-    getData(searchURI + searchValue);
+    const searchURI = flickrServer + flickerMethod + api_key + flickrFrormat + "&text=" + searchValue + per_page + page + pageNum;
+    getData(searchURI);
   })
+
+  // ページ
 
   // APIから画像を取得
   function getData(uri) {
@@ -33,22 +35,12 @@ $(function() {
       type: 'GET',
       url: uri,
       dataType: 'json'
-    }).then(function(data) {
-      console.log(data)
-      // const pageTotal = data.photos.pages;
-      // 10個divを作る
-      for (let i = 1; i <= 10; i++) {
-        gallery.append(`<div class="Gallery__block" id="Gallery__${i}"></div>`);
-      }
-      return data
     })
     .then(function(data) {
-      const photosLength = data.photos.photo.length;
-      // ページ振り分け
-      let pageNum = 1;
-      const viewPhotoNum = 50;
-      let changePhotoNum = viewPhotoNum;
-      for (let imageNum = 0; imageNum < photosLength; imageNum++) {
+      // 写真の枚数
+      const viewPhotoNum = data.photos.perpage;
+      // 枚数分取得
+      for (let imageNum = 0; imageNum < viewPhotoNum; imageNum++) {
         const photo = data.photos.photo[imageNum];
         const farmId = photo.farm;
         const server = photo.server;
@@ -59,39 +51,33 @@ $(function() {
         const srcUrl = "http://farm" + farmId + ".staticflickr.com/"+ server +"/" + id + "_"+ secret +".jpg";
         const image = new Image(imageHeight, imageWidth);
         image.src = srcUrl;
-
-        if (imageNum === changePhotoNum) {
-          pager.append(`<li class="Pager__list"><a href="#Gallery__${pageNum}" class="Pager__anchur">${pageNum}</a></li>`)
-          pageNum++;
-          changePhotoNum = viewPhotoNum * pageNum;
-        }
-        const targetContent = $(`#Gallery__${pageNum}`);
-        targetContent.append(image);
+        gallery.append(image);
       }
     })
     .then(function() {
-      $(".Pager__anchur:first").addClass("is-active")
-      $(".Pager__anchur").each(function() {
+      $(".Pager__anchor:first").addClass("is-active");
+      $(".Pager__anchor").each(function() {
+        // イベントリスナーがすでに登録されていいた場合はスルー
+        if (jQuery._data($(this).get(0)).events) {
+          return
+        }
+        pageNum = $(this)[0].getAttribute("id")
         $(this).on("click", function(e) {
           e.preventDefault();
-          $(".Pager__anchur").removeClass("is-active");
-          $(this).addClass("is-active");
-          const targetId = $(this).attr("href");
-          pageChange(targetId)
+          const targetPageNum = $(this)[0].getAttribute("id");
+          if (pageNum !== targetPageNum) {
+            pageNum = targetPageNum;
+            resetGallery()
+            $(this).addClass("is-active");
+            const search = flickrServer + flickerMethod + api_key + flickrFrormat + "&text=" + searchValue + per_page + page + pageNum;
+            getData(search);
+          }
         })
       })
     })
-    .then(function() {
-      // 最初のコンテンツを表示
-      $("#Gallery div:first").css("display","flex")
-      // ページャーを表示
-      pager.show();
-    })
   }
-
-  // ページネーション
-  function pageChange(targetId) {
-    gallery.children().css("display","none");
-    $(targetId).css("display","flex");
+  function resetGallery() {
+    gallery.empty();
+    $(".is-active").removeClass("is-active");
   }
 })
