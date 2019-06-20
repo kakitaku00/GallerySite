@@ -111,13 +111,21 @@ $(function() {
       currentMaxViewPager--
     }
     // 最初に戻るボタン
-    pager.append('<li class="Pager__list"><a href="#' + firstPageNum + '" data-page="' + firstPageNum + '" class="Pager__anchor"><<</a></li>')
     for (let i = currentPage + adjustNum; i <= currentMaxViewPager; i++) {
       pager.append('<li class="Pager__list"><a href="#' + i + '" data-page="' + i + '" class="Pager__anchor">' + i + '</a></li>')
       if (i === currentPage) {
         $('a[data-page="' + currentPage + '"').addClass("is-active");
       }
     }
-    pager.append('<li class="Pager__list"><a href="#' + lastPageNum + '" data-page="' + lastPageNum + '" class="Pager__anchor">>></a></li>')
+    if (currentPage !== firstPageNum) {
+      const prevPageNum = currentPage - 1
+      pager.prepend('<li class="Pager__list"><a href="#' + prevPageNum + '" data-page="' + prevPageNum + '" class="Pager__anchor"><</a></li>')
+      pager.prepend('<li class="Pager__list"><a href="#' + firstPageNum + '" data-page="' + firstPageNum + '" class="Pager__anchor"><<</a></li>')
+    }
+    if (currentPage !== lastPageNum) {
+      const nextPageNum = currentPage + 1
+      pager.append('<li class="Pager__list"><a href="#' + nextPageNum + '" data-page="' + nextPageNum + '" class="Pager__anchor">></a></li>')
+      pager.append('<li class="Pager__list"><a href="#' + lastPageNum + '" data-page="' + lastPageNum + '" class="Pager__anchor">>></a></li>')
+    }
   }
 })
