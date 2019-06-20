@@ -56,7 +56,7 @@ $(function() {
         $(this).on("click", function(e) {
           e.preventDefault();
           pager.empty();
-          pageNum = $(this)[0].getAttribute("id");
+          pageNum = $(this)[0].getAttribute("data-page");
           resetGallery()
           $(this).addClass("is-active");
           const search = flickrServer + flickerMethod + api_key + flickrFrormat + textFormat + searchValue + per_page + page + pageNum;
@@ -88,6 +88,8 @@ $(function() {
   }
 
   function viewpager(currentPage, maxPages) {
+    const firstPageNum = 1;
+    const lastPageNum = maxPages;
     // ページャーを表示するブロックの最大数
     let viewPagerBlock = 3
     // 取得したmaxPagesがブロックの最大数以下の場合更新
@@ -100,20 +102,22 @@ $(function() {
     let adjustNum = -1;
     // 最初のページ
     if (currentPage === 1) {
-      adjustNum++;
-      currentMaxViewPager++;
+      adjustNum++
+      currentMaxViewPager++
     }
     // 最後のページ
-    if (currentPage === maxPages || maxPages !== 2) {
-      adjustNum--;
-      currentMaxViewPager--;
+    if (currentPage === maxPages && maxPages !== 2) {
+      adjustNum--
+      currentMaxViewPager--
     }
-
+    // 最初に戻るボタン
+    pager.append('<li class="Pager__list"><a href="#' + firstPageNum + '" data-page="' + firstPageNum + '" class="Pager__anchor"><<</a></li>')
     for (let i = currentPage + adjustNum; i <= currentMaxViewPager; i++) {
-      pager.append('<li class="Pager__list"><a href="#' + i + '" id="' + i + '" class="Pager__anchor">' + i + '</a></li>')
+      pager.append('<li class="Pager__list"><a href="#' + i + '" data-page="' + i + '" class="Pager__anchor">' + i + '</a></li>')
       if (i === currentPage) {
-        $("#" + currentPage).addClass("is-active");
+        $('a[data-page="' + currentPage + '"').addClass("is-active");
       }
     }
+    pager.append('<li class="Pager__list"><a href="#' + lastPageNum + '" data-page="' + lastPageNum + '" class="Pager__anchor">>></a></li>')
   }
 })
