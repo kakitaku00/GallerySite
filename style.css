@@ -11,6 +11,7 @@ a {
 
 .Header {
   background-color: #eee;
+  border-bottom: 2px solid #333;
   padding: 20px;
 }
 
@@ -26,6 +27,8 @@ a {
 .Gallery__search {
   display: flex;
   justify-content: center;
+  max-width: 320px;
+  margin: 0 auto;
 }
 
 .Gallery__search__text {
@@ -34,7 +37,7 @@ a {
   font-size:1.3em;
   border:solid 1px #ccc;
   margin-right: 20px;
-  max-width:300px;
+  max-width: 70%;
   border-radius: 5px;
 }
 
