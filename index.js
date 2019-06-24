@@ -12,7 +12,7 @@ $(function() {
   const flickrFrormat = "&format=json&nojsoncallback=1&extras=url_q,date_taken"
   const textFormat = "&text="
   let searchValue = "";
-  const per_page = "&per_page=50"; // 1ページ50枚表示
+  const per_page = "&per_page=25"; // 1ページ25枚表示
   const page = "&page=";
   let pageNum = 0
 
@@ -20,17 +20,16 @@ $(function() {
   searchBtn.on("click", function() {
     // 検索文字が同じ時は処理をしない
     if (searchValue === searchText[0].value) {return}
+    // 検索テキスト
     searchValue = searchText[0].value;
+    // 1ページ目
     pageNum = 1
     // Gallery/Pagerの中を空にする
     resetGallery()
-    pager.empty();
     // 画像を取得
     const searchURI = flickrServer + flickerMethod + api_key + flickrFrormat + textFormat + searchValue + per_page + page + pageNum;
     getData(searchURI);
   })
-
-  // ページ
 
   // APIから画像を取得
   function getData(uri) {
@@ -47,17 +46,17 @@ $(function() {
       const currentPages = data.photos.page
       // 枚数分描画
       viewPhoto(data, viewPhotoNum);
-      viewpager(currentPages, pages);
+      viewPager(currentPages, pages);
     })
     .then(function() {
       $(".Pager__anchor").each(function() {
         // イベントリスナーがすでに登録されていいた場合はスルー
         if (jQuery._data($(this).get(0)).events) {return}
+        // clickイベント
         $(this).on("click", function(e) {
           e.preventDefault();
-          pager.empty();
+          resetGallery();
           pageNum = $(this)[0].getAttribute("data-page");
-          resetGallery()
           $(this).addClass("is-active");
           const search = flickrServer + flickerMethod + api_key + flickrFrormat + textFormat + searchValue + per_page + page + pageNum;
           getData(search);
@@ -65,12 +64,12 @@ $(function() {
       })
     })
   }
-
+  // リセット
   function resetGallery() {
     gallery.empty();
-    $(".is-active").removeClass("is-active");
+    pager.empty();
   }
-
+  // 画像表示
   function viewPhoto(data, viewPhotoNum) {
     for (let imageNum = 0; imageNum < viewPhotoNum; imageNum++) {
       const photo = data.photos.photo[imageNum];
@@ -86,8 +85,8 @@ $(function() {
       gallery.append(image);
     }
   }
-
-  function viewpager(currentPage, maxPages) {
+  // ページャー表示
+  function viewPager(currentPage, maxPages) {
     const firstPageNum = 1;
     const lastPageNum = maxPages;
     // ページャーを表示するブロックの最大数
