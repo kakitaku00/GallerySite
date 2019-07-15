@@ -7,39 +7,66 @@ $(function() {
 
   // flickerAPI
   const flickrServer = "https://api.flickr.com/services/rest";
-  const api_key = "&api_key=ec560fe4b5414933f7dd557ed0ec7a78";
-  const flickerMethod = "?method=flickr.photos.search";
-  const flickrFrormat = "&format=json&nojsoncallback=1&extras=url_q,date_taken"
-  const textFormat = "&text="
-  let searchValue = "";
-  const per_page = "&per_page=25"; // 1ページ25枚表示
-  const page = "&page=";
-  let pageNum = 0
+  // const api_key = "&api_key=ec560fe4b5414933f7dd557ed0ec7a78";
+  const api_key = "ec560fe4b5414933f7dd557ed0ec7a78";
+  // const flickerMethod = "?method=flickr.photos.search";
+  // const flickrFrormat = "&format=json&nojsoncallback=1&extras=url_q,date_taken"
+  // const textFormat = "&text="
+  // let searchValue = "";
+  // const per_page = "&per_page=25"; // 1ページ25枚表示
+  // const page = "&page=";
+  // let pageNum = 0
+  let pageData = {
+    pageNum: 0,
+    searchValue: ""
+  }
+
+  const handleSearch = function(searchValue, pageNum) {
+    pageData.searchValue = searchValue;
+    pageData.pageNum = pageNum;
+    getData(pageData.searchValue, pageData.pageNum);
+  }
 
   // 検索
   searchBtn.on("click", function() {
     // 検索文字が同じ時は処理をしない
-    if (searchValue === searchText[0].value) {return}
+    if (pageData.searchValue === searchText.val()) {return}
     // 検索テキスト
-    searchValue = searchText[0].value;
+    pageData.searchValue = searchText.val();
     // 1ページ目
-    pageNum = 1
+    pageData.pageNum = 1
     // Gallery/Pagerの中を空にする
     resetGallery()
     // 画像を取得
-    const searchURI = flickrServer + flickerMethod + api_key + flickrFrormat + textFormat + searchValue + per_page + page + pageNum;
-    getData(searchURI);
+    // const searchURI = flickrServer + flickerMethod + api_key + flickrFrormat + textFormat + searchValue + per_page + page + pageNum;
+    handleSearch(pageData.searchValue, pageData.pageNum);
   })
 
+  $(document).on('click','.Pager__anchor',function() {
+    setPagerEvent($(this));
+  })
+
+
+  // $(document).on('click','.Pager__anchor',setPagerEvent($(this)));
+
   // APIから画像を取得
-  function getData(uri) {
+  function getData(searchValue, pageNum) {
     $.ajax({
       type: 'GET',
-      url: uri,
+      url: flickrServer,
+      data: {
+        'method': 'flickr.photos.search',
+        'api_key': api_key,
+        'text':searchValue,
+        'page':pageNum,
+        'per_page': '25',
+        'format': 'json',
+        'nojsoncallback': '1',
+        'extras':'url_q'
+      },
       dataType: 'json'
     })
     .then(function(data) {
-      console.log(data)
       // 写真の枚数
       const viewPhotoNum = data.photos.photo.length;
       const pages = data.photos.pages
@@ -48,21 +75,11 @@ $(function() {
       viewPhoto(data, viewPhotoNum);
       viewPager(currentPages, pages);
     })
-    .then(function() {
-      $(".Pager__anchor").each(function() {
-        // イベントリスナーがすでに登録されていいた場合はスルー
-        if (jQuery._data($(this).get(0)).events) {return}
-        // clickイベント
-        $(this).on("click", function(e) {
-          e.preventDefault();
-          resetGallery();
-          pageNum = $(this)[0].getAttribute("data-page");
-          $(this).addClass("is-active");
-          const search = flickrServer + flickerMethod + api_key + flickrFrormat + textFormat + searchValue + per_page + page + pageNum;
-          getData(search);
-        })
-      })
-    })
+    // .then(function() {
+    //   $(".Pager__anchor").each(function() {
+    //     setPagerEvent($(this));
+    //   })
+    // })
   }
   // リセット
   function resetGallery() {
@@ -70,20 +87,25 @@ $(function() {
     pager.empty();
   }
   // 画像表示
-  function viewPhoto(data, viewPhotoNum) {
-    for (let imageNum = 0; imageNum < viewPhotoNum; imageNum++) {
-      const photo = data.photos.photo[imageNum];
-      const farmId = photo.farm;
-      const server = photo.server;
-      const id = photo.id;
-      const secret = photo.secret;
-      const imageWidth = photo.width_q;
-      const imageHeight = photo.height_q;
-      const srcUrl = "http://farm" + farmId + ".staticflickr.com/"+ server +"/" + id + "_"+ secret +".jpg";
-      const image = new Image(imageHeight, imageWidth);
-      image.src = srcUrl;
-      gallery.append(image);
-    }
+  function viewPhoto(data) {
+    const imageLists = data.photos.photo.map(function(image) {
+      return '<img src="' + image.url_q + '" alt="' + image.title + '">'
+    })
+    gallery.html(imageLists.join(''))
+
+    // for (let imageNum = 0; imageNum < viewPhotoNum; imageNum++) {
+    //   const photo = data.photos.photo[imageNum];
+    //   const farmId = photo.farm;
+    //   const server = photo.server;
+    //   const id = photo.id;
+    //   const secret = photo.secret;
+    //   const imageWidth = photo.width_q;
+    //   const imageHeight = photo.height_q;
+    //   const srcUrl = "http://farm" + farmId + ".staticflickr.com/"+ server +"/" + id + "_"+ secret +".jpg";
+    //   const image = new Image(imageHeight, imageWidth);
+    //   image.src = srcUrl;
+    //   gallery.append(image);
+    // }
   }
   // ページャー表示
   function viewPager(currentPage, maxPages) {
@@ -126,5 +148,23 @@ $(function() {
       pager.append('<li class="Pager__list"><a href="#' + nextPageNum + '" data-page="' + nextPageNum + '" class="Pager__anchor">></a></li>')
       pager.append('<li class="Pager__list"><a href="#' + lastPageNum + '" data-page="' + lastPageNum + '" class="Pager__anchor">>></a></li>')
     }
+
+    // $(".Pager__anchor").each(function() {
+    //   setPagerEvent($(this));
+    // })
+  }
+
+  function setPagerEvent (target) {
+    // console.log((jQuery._data(target.get(0)).events));
+    // イベントリスナーがすでに登録されていいた場合はスルー
+    // if (jQuery._data(target.get(0)).events) {return}
+    // clickイベント
+    target.on("click", function(e) {
+      e.preventDefault();
+      resetGallery();
+      pageNum = target[0].getAttribute("data-page");
+      // const search = flickrServer + flickerMethod + api_key + flickrFrormat + textFormat + searchValue + per_page + page + pageNum;
+      handleSearch(pageData.searchValue, pageData.pageNum);
+    })
   }
 })

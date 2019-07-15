@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>document</title>
+</head>
+<body>
+	<div id="app">
+		<div>
+			<input type="text" class="js-text" />
+			<input type="button" value="Search" class="c-btn js-searchTrigger" />
+		</div>
+		<ul class="js-searchList"></ul>
+		<div class="js-pageList"></div>
+	</div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+const API_KEY = '9f0339cbdad27d88bbce5700b9ed7272'
+const REQUEST_URL = 'https://api.flickr.com/services/rest'
+// const data = {
+// 	keyword: 'cat',
+// 	page:1,
+// 	maxPage:1,
+// 	items:[]
+// }
+// const init = function() {
+// 		bindEvent()
+// 		fetchData()
+// }
+// const bindEvent = function(){
+// 	$('.js-searchTrigger').click(handleSearch)
+// 	$(document).on('click','.js-triggerPageChange',handlePageChange)
+// }
+
+
+const app = {
+  data: {
+    keyword: 'cat',
+    page:1,
+    maxPage:1,
+    items:[]
+  },
+  init: function() {
+		this.bindEvent()
+    this.fetchData()
+  },
+	bindEvent: function() {
+		$('.js-searchTrigger').click(this.handleSearch.bind(this))
+		$(document).on('click','.js-triggerPageChange',this.handlePageChange.bind(this))
+  },
+	handleSearch: function () {
+		this.data = {
+			keyword: $('.js-text').val(),
+			page:1,
+			maxPage:1
+		}
+		this.fetchData()
+	},
+	handlePageChange: function (e) {
+		this.data.page = parseInt($(e.currentTarget).text(),10)
+		this.fetchData()
+	},
+	fetchData: function () {
+		const self = this;
+		$.ajax({
+				url: REQUEST_URL,
+				type:'GET',
+				data: {
+					'method': 'flickr.photos.search',
+					'api_key': API_KEY,
+					'text':this.data.keyword,
+					'page':this.data.page,
+					'per_page': '10',
+					'format': 'json',
+					'nojsoncallback': '1',
+					'extras':'url_s'
+				}
+			})
+			.then(function(response){ 
+				self.data.maxPage = response.photos.pages
+				self.data.items =response.photos.photo
+				self.render()
+			})
+	},
+	render(){
+		this.renderGallery()
+		this.renderPager()
+	},
+	renderGallery(){
+		const list = this.data.items.map(function(item){
+			return '<li>' +
+						 	'<img src="' + item.url_s + '" alt="' + item.title + '">' +
+						 '</li>'
+
+		})
+		$('.js-searchList').html(list.join(''))
+	},
+	renderPager(){
+		const range = 3
+		const minPage = this.data.page > range ? this.data.page - range : 1
+		const maxPage = this.data.maxPage < this.data.page + range ? this.data.maxPage : this.data.page + range
+		const pager = []
+		for(let i = minPage; i <= maxPage ; i++){
+			if(i === this.data.page ){
+				pager.push('<button aria-selected="true">'+ i +'</button>')
+			}else{
+				pager.push('<button class="js-triggerPageChange">'+ i +'</button>')
+			}
+		}
+		$('.js-pageList').html(pager.join(''))
+	}
+  
+}
+app.init()
+
+</script>
+<style>
+button[aria-selected]{
+	font-weight: bold;
+}
+</style>
+</body>
+</html>
