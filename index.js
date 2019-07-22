@@ -7,7 +7,7 @@ $(function() {
 
   // flickerAPI
   const FLICKER_SERVER = "https://api.flickr.com/services/rest";
-  const API_KEY = "ec560fe4b5414933f7dd557ed0ec7a78";
+  const API_KEY = "";
 
   let pageData = {
     pageNum: 0,
