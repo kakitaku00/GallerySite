@@ -4,25 +4,45 @@ $(function() {
   const $searchBtn = $("#SearchBtn");
   const $gallery = $("#Gallery");
   const $pager = $(".Pager");
+  const $keywords = $("#Keywords");
 
   // flickerAPI
   const FLICKER_SERVER = "https://api.flickr.com/services/rest";
-  const API_KEY = "";
+  const API_KEY = "ec560fe4b5414933f7dd557ed0ec7a78";
 
   let pageData = {
     pageNum: 0,
     searchValue: "",
     photoItem: [],
     maxPage: 0,
-    currentPage: 1
+    currentPage: 1,
+    hystoryKeywords: [],
+    maxOption: 5
   }
 
   function main() {
     bindEvent();
   }
 
+  function createOption(keywords) {
+    const option = keywords.map((keyword) => {
+      return `<option value="${keyword}"></option>`
+    })
+    console.log(option);
+    $keywords.html(option.join(''))
+  }
+
+  function addKeyword(keyword) {
+    // maxOption数以上補完は溜めない
+    if (pageData.hystoryKeywords.length >= pageData.maxOption) {
+      pageData.hystoryKeywords.shift()
+    }
+    pageData.hystoryKeywords.unshift(keyword)
+  }
+
   // イベント登録
   function bindEvent() {
+
     // Search Event
     $searchBtn.on("click", function() {
       if (pageData.searchValue === $searchText.val()) {return}
@@ -32,8 +52,12 @@ $(function() {
       pageData.pageNum = 1
       // Gallery/Pagerの中を空に
       resetGallery()
+      // 検索テキストを配列に格納
+      addKeyword(pageData.searchValue)
+      // 補完作成
+      createOption(pageData.hystoryKeywords)
       // 画像を取得
-      handleSearch(pageData.searchValue, pageData.pageNum);
+      handleSearch(pageData.searchValue, pageData.pageNum)
     });
   }
 
