@@ -17,11 +17,32 @@ $(function() {
     maxPage: 0,
     currentPage: 1,
     hystoryKeywords: [],
-    maxOption: 5
+    maxOption: 3
   }
 
   function main() {
     bindEvent();
+  }
+
+  function setCookie(data) {
+    const formatData = function(data) {
+      let obj = {}
+      for (let i = data.length; i > 0;) {
+        i--;
+        obj["key" + i] = data[i];
+      }
+      return obj;
+    }
+    const cookieData = formatData(data);
+    console.log(cookieData)
+
+    for(key in cookieData) {
+      console.log(`${key}=${cookieData[key]};max-age=60`)
+      document.cookie = `${key}=${cookieData[key]};max-age=60`
+    }
+
+    console.log(document.cookie);
+
   }
 
   function createOption(keywords) {
@@ -35,7 +56,7 @@ $(function() {
   function addKeyword(keyword) {
     // maxOption数以上補完は溜めない
     if (pageData.hystoryKeywords.length >= pageData.maxOption) {
-      pageData.hystoryKeywords.shift()
+      pageData.hystoryKeywords.pop()
     }
     pageData.hystoryKeywords.unshift(keyword)
   }
@@ -58,6 +79,7 @@ $(function() {
       createOption(pageData.hystoryKeywords)
       // 画像を取得
       handleSearch(pageData.searchValue, pageData.pageNum)
+      setCookie(pageData.hystoryKeywords)
     });
   }
 
