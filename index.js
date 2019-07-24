@@ -8,7 +8,7 @@ $(function() {
 
   // flickerAPI
   const FLICKER_SERVER = "https://api.flickr.com/services/rest";
-  const API_KEY = "ec560fe4b5414933f7dd557ed0ec7a78";
+  const API_KEY = "";
 
   let pageData = {
     pageNum: 0,
@@ -17,42 +17,56 @@ $(function() {
     maxPage: 0,
     currentPage: 1,
     hystoryKeywords: [],
-    maxOption: 3
+    maxOption: 5,
+    cookieData: []
   }
 
   function main() {
+    initCookie();
     bindEvent();
   }
 
-  function setCookie(data) {
-    const formatData = function(data) {
-      let obj = {}
-      for (let i = data.length; i > 0;) {
-        i--;
-        obj["key" + i] = data[i];
-      }
-      return obj;
-    }
-    const cookieData = formatData(data);
-    console.log(cookieData)
-
-    for(key in cookieData) {
-      console.log(`${key}=${cookieData[key]};max-age=60`)
-      document.cookie = `${key}=${cookieData[key]};max-age=60`
-    }
-
-    console.log(document.cookie);
-
+  // Cookieが登録されている場合Dataに登録
+  function initCookie() {
+    console.log("cooke: " + document.cookie)
+    if (!document.cookie) {return}
+    // cookie文字列を配列に変換
+    pageData.cookieData = document.cookie.split(";");
+    // cookie配列のkeyを削除し、サジェスト用配列に置換
+    pageData.cookieData.forEach(function(data){
+      pageData.hystoryKeywords.unshift(data.replace(/\s+key\d+=|key\d+=/, ""))
+    })
+    // optionに格納
+    createOption(pageData.hystoryKeywords)
   }
 
+  // Cookieに保存
+  function setCookie(data) {
+    pageData.cookieData = formatCookieData(data);
+    pageData.cookieData.forEach(function(data) {
+      // 1分だけCookieに保存
+      document.cookie = `${data};max-age=60`
+    })
+  }
+
+  // Cookieに保存できる形式に変換
+  function formatCookieData(data) {
+    let arr = []
+    for (let i = data.length -1; i >= 0; i--) {
+      arr.push(`key${i}=${data[i]}`)
+    }
+    return arr;
+  }
+
+  // optionタグを生成
   function createOption(keywords) {
     const option = keywords.map((keyword) => {
       return `<option value="${keyword}"></option>`
     })
-    console.log(option);
     $keywords.html(option.join(''))
   }
 
+  // 検索したkeywordをデータに格納
   function addKeyword(keyword) {
     // maxOption数以上補完は溜めない
     if (pageData.hystoryKeywords.length >= pageData.maxOption) {
@@ -63,7 +77,6 @@ $(function() {
 
   // イベント登録
   function bindEvent() {
-
     // Search Event
     $searchBtn.on("click", function() {
       if (pageData.searchValue === $searchText.val()) {return}
@@ -79,6 +92,7 @@ $(function() {
       createOption(pageData.hystoryKeywords)
       // 画像を取得
       handleSearch(pageData.searchValue, pageData.pageNum)
+      // cookieに格納
       setCookie(pageData.hystoryKeywords)
     });
   }
