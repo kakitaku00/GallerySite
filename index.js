@@ -1,10 +1,12 @@
 $(function() {
 
+  const $container = $(".container");
   const $searchText = $("#SearchText");
   const $searchBtn = $("#SearchBtn");
   const $gallery = $("#Gallery");
   const $pager = $(".Pager");
   const $keywords = $("#Keywords");
+  const $loading = $(".loading");
 
   // flickerAPI
   const FLICKER_SERVER = "https://api.flickr.com/services/rest";
@@ -124,7 +126,15 @@ $(function() {
         'nojsoncallback': '1',
         'extras':'url_q'
       },
-      dataType: 'json'
+      dataType: 'json',
+      beforeSend: function(){
+        $loading.removeClass('is-hide');
+      },
+      success: function(){
+        setTimeout(() => {
+          $loading.addClass("is-hide");
+        }, 1000);
+      }
     })
     .then(function(data) {
       console.log(data)
