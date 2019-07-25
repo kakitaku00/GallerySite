@@ -95,11 +95,12 @@ $(function() {
       // cookieに格納
       setCookie(pageData.hystoryKeywords)
     });
-
+    // Enterキーで実行
     $searchText.keypress(function(e) {
       if(e.which == 13){
-          $searchBtn.click();
-          $(this).blur()
+        $searchBtn.click()
+        // フォーカスを外す
+        $(this).blur()
       }
     })
   }
