@@ -95,6 +95,13 @@ $(function() {
       // cookieに格納
       setCookie(pageData.hystoryKeywords)
     });
+
+    $searchText.keypress(function(e) {
+      if(e.which == 13){
+          $searchBtn.click();
+          $(this).blur()
+      }
+    })
   }
 
   function handleSearch(searchValue, pageNum) {
