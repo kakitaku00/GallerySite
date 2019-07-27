@@ -1,0 +1,22 @@
+{
+  "name": "gallery",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "start": "http-server -o"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kakitaku00/GallerySite.git"
+  },
+  "author": "kakitaku",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kakitaku00/GallerySite/issues"
+  },
+  "homepage": "https://github.com/kakitaku00/GallerySite#readme",
+  "devDependencies": {
+    "http-server": "^0.11.1"
+  }
+}

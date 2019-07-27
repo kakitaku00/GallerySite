@@ -13,3 +13,15 @@ Enter the Flickr API key
 const Key = "API_KEY"
 export default Key
 ```
+
+## init
+
+```
+$ npm install
+```
+
+## start
+
+```
+$ npm start
+```
