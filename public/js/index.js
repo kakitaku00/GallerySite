@@ -1,3 +1,5 @@
+import Key from '../config/key.js';
+
 const $searchText = $("#SearchText");
 const $searchBtn = $("#SearchBtn");
 const $gallery = $("#Gallery");
@@ -5,9 +7,9 @@ const $pager = $(".Pager");
 const $keywords = $("#Keywords");
 const $loading = $(".loading");
 
-// flickerAPI
+// flicker
 const FLICKER_SERVER = "https://api.flickr.com/services/rest";
-const API_KEY = "";
+const API_KEY = Key;
 
 let pageData = {
   pageNum: 0,
