@@ -12,6 +12,7 @@ const FLICKER_SERVER = "https://api.flickr.com/services/rest";
 const API_KEY = Key;
 
 let pageData = {
+  mode: "list",
   pageNum: 0,
   searchValue: "",
   photoItem: [],
@@ -23,8 +24,45 @@ let pageData = {
 }
 
 function main() {
+  // renderList();
   initCookie();
   bindEvent();
+}
+
+function renderDetail(href) {
+  const url = href;
+  pageData.mode = "detail";
+  history.pushState(null, "detail", url);
+  const imageId = location.search.replace(/\?id=/,"")
+  const imageData = getDetailImage(imageId)
+  console.log(imageData)
+  console.log(imageData.responseJSON.set[0].id)
+}
+
+function getDetailImage (id) {
+  const data = $.ajax({
+    type: 'GET',
+    url: FLICKER_SERVER,
+    data: {
+      'method': 'flickr.photos.getAllContexts',
+      'api_key': API_KEY,
+      'photo_id': id,
+      'format': 'json',
+      'nojsoncallback': '1',
+      // 'extras':'url_q'
+    },
+    dataType: 'json',
+  })
+  return data
+}
+
+function renderDetailImage(data) {
+  // const src = data.photo.urls.url[""0""]._content
+  // const imageLists = data.map(function(image) {
+  //   const imageId = image.id
+  //   return `<a class="flickerImage" href="detail.html?id=${imageId}"><img src="${image.url_q}" alt="${image.title}"></a>`
+  // })
+  // $gallery.html(imageLists.join(''))
 }
 
 // Cookieが登録されている場合Dataに登録
@@ -44,6 +82,7 @@ function initCookie() {
 // Cookieに保存
 function setCookie(data) {
   pageData.cookieData = formatCookieData(data);
+
   pageData.cookieData.forEach(function(data) {
     // 1分だけCookieに保存
     document.cookie = `${data};max-age=60`
@@ -120,7 +159,7 @@ function getData(searchValue, pageNum) {
       'api_key': API_KEY,
       'text':searchValue,
       'page':pageNum,
-      'per_page': '25',
+      'per_page': '15',
       'format': 'json',
       'nojsoncallback': '1',
       'extras':'url_q'
@@ -156,9 +195,16 @@ function getData(searchValue, pageNum) {
 // 画像表示
 function viewPhoto(data) {
   const imageLists = data.map(function(image) {
-    return '<img src="' + image.url_q + '" alt="' + image.title + '">'
+    const imageId = image.id
+    return `<a class="flickerImage" href="detail.html?id=${imageId}"><img src="${image.url_q}" alt="${image.title}"></a>`
   })
   $gallery.html(imageLists.join(''))
+  $(".flickerImage").on("click", function(e) {
+    e.preventDefault()
+    renderDetail(e.currentTarget.href)
+    console.log(e)
+    // console.log(e.currentTarget.href.replace(/http:\/\/\//, ""))
+  })
 }
 
 // ページャー表示

@@ -111,11 +111,15 @@ input::-webkit-calendar-picker-indicator {
   color: #fff;
 }
 
-/* loading */
 .is-hide {
   display: none;
 }
 
+.is-show {
+  display: block;
+}
+
+/* loading */
 .loading {
   position: fixed;
   top: 0;

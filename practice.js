@@ -1,3 +1,42 @@
+// array.some(function)
+// https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+
+// インデントが多いと状態が複雑になる
+// 配列操作　=> forではなくmap/filterなどを使う
+
+// mousedown
+
+// [keyword].concat
+// push/popは破壊的なので使用しない方がいい
+// 配列をコピーして操作
+
+// ---
+
+// 画像をクリックしたら詳細画面を表示
+
+// mode　data
+
+// render detail listで分ける
+// URLも変化
+// hystoryAPI
+// pushState
+
+// detail.html?id=
+// 404エラーになるから同じhtmlを用意する
+
+// hystory api
+// https://developer.mozilla.org/ja/docs/Web/Guide/DOM/Manipulating_the_browser_history
+
+
+
+
+
+
+
+
+
+
+
 // 定数は大文字 スネークケースでかく
 const API_KYE
 
