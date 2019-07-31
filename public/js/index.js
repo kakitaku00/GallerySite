@@ -1,9 +1,7 @@
 import Key from '../config/key.js';
 
-const $searchText = $("#SearchText");
-const $searchBtn = $("#SearchBtn");
-const $gallery = $("#Gallery");
-const $pager = $(".Pager");
+const $contents = $(".Contents");
+const $detail = $(".Detail");
 const $keywords = $("#Keywords");
 const $loading = $(".loading");
 
@@ -16,6 +14,7 @@ let pageData = {
   pageNum: 0,
   searchValue: "",
   photoItem: [],
+  photoUrl: "",
   maxPage: 0,
   currentPage: 1,
   hystoryKeywords: [],
@@ -23,46 +22,121 @@ let pageData = {
   cookieData: []
 }
 
+$(window).on("load popstate", async function(e) {
+  selectContents()
+  renderContents()
+})
+
+$(document).on("click", "#backBtn", function(e) {
+  history.pushState(null, "list", "/");
+  pageData.mode = "list"
+  renderContents()
+})
+
+$(document).on("click", ".flickerImage", function(e) {
+  e.preventDefault()
+  const href = $(this).attr('href')
+  history.pushState(null, "detail", href);
+  pageData.mode = "detail"
+  renderDetail(href)
+  renderContents()
+})
+
 function main() {
-  // renderList();
-  initCookie();
   bindEvent();
+  initCookie();
 }
 
-function renderDetail(href) {
-  const url = href;
-  pageData.mode = "detail";
-  history.pushState(null, "detail", url);
-  const imageId = location.search.replace(/\?id=/,"")
-  const imageData = getDetailImage(imageId)
-  console.log(imageData)
-  console.log(imageData.responseJSON.set[0].id)
+function createGallery() {
+  const galleryDom = `
+    <div class="Gallery__search">
+      <input type="text" class="Gallery__search__text" name="" id="SearchText" placeholder="text" list="Keywords" autocomplete="on">
+      <datalist id="Keywords"></datalist>
+      <input type="button"  class="Gallery__search__submit" value="Search" id="SearchBtn">
+    </div>
+    <div id="Gallery" class="Gallery__contents">
+
+    </div>
+    <div class="Gallery__pager">
+      <ul class="Pager">
+      </ul>
+    </div>
+  `
+  $contents.html(galleryDom);
 }
 
-function getDetailImage (id) {
-  const data = $.ajax({
+function selectContents() {
+  const href = location.pathname + location.search
+  if (href.match(/\?/)) {
+    pageData.mode = "detail"
+    renderDetail(href)
+    // Galleryが空の場合作成
+    if ($contents.length !== 0) {
+      createGallery()
+    }
+  } else {
+    pageData.mode = "list"
+    createGallery()
+  }
+}
+
+function renderContents() {
+  if (pageData.mode === "detail") {
+    $contents.addClass("is-hide")
+    $detail.removeClass("is-hide")
+  }
+
+  if (pageData.mode === "list") {
+    $contents.removeClass("is-hide")
+    $detail.empty()
+    $detail.addClass("is-hide")
+  }
+
+}
+
+async function renderDetail(href) {
+  let imageData
+  const imageId = href.replace(/\/detail.html\?id=/,"");
+  await getDetailImage(imageId, (data) => {
+    imageData = data
+  })
+  pageData.photoUrl = `https://live.staticflickr.com/${imageData.server}/${imageData.id}_${imageData.secret}.jpg`
+  $detail.html(`
+    <img src="${pageData.photoUrl}">
+    <button type="button" id="backBtn">back</button>
+  `)
+  // await renderContents()
+}
+
+function getDetailImage (id, callback) {
+  return $.ajax({
     type: 'GET',
     url: FLICKER_SERVER,
     data: {
-      'method': 'flickr.photos.getAllContexts',
+      'method': 'flickr.photos.getInfo',
       'api_key': API_KEY,
       'photo_id': id,
       'format': 'json',
       'nojsoncallback': '1',
-      // 'extras':'url_q'
     },
     dataType: 'json',
+    beforeSend: function(){
+      $loading.removeClass('is-hide');
+    },
+    success: function(){
+      setTimeout(() => {
+        $loading.addClass("is-hide");
+      }, 500);
+    }
   })
-  return data
-}
-
-function renderDetailImage(data) {
-  // const src = data.photo.urls.url[""0""]._content
-  // const imageLists = data.map(function(image) {
-  //   const imageId = image.id
-  //   return `<a class="flickerImage" href="detail.html?id=${imageId}"><img src="${image.url_q}" alt="${image.title}"></a>`
-  // })
-  // $gallery.html(imageLists.join(''))
+  .done(function(data) {
+    console.log(data)
+    const photoData = data.photo
+    callback(photoData)
+  })
+  .fail(function() {
+    console.log('err');
+  });
 }
 
 // Cookieが登録されている場合Dataに登録
@@ -118,10 +192,12 @@ function addKeyword(keyword) {
 // イベント登録
 function bindEvent() {
   // Search Event
-  $searchBtn.on("click", function() {
-    if (pageData.searchValue === $searchText.val()) {return}
+  // $searchBtn.on("click", function() {
+  $(document).on( "click", "#SearchBtn", function() {
+    // const $searchText = $("#SearchText");
+    if (pageData.searchValue === $("#SearchText").val()) {return}
     // 検索テキスト
-    pageData.searchValue = $searchText.val();
+    pageData.searchValue = $("#SearchText").val();
     // 1ページ目
     pageData.pageNum = 1
     // Gallery/Pagerの中を空に
@@ -136,7 +212,7 @@ function bindEvent() {
     setCookie(pageData.hystoryKeywords)
   });
   // Enterキーで実行
-  $searchText.keypress(function(e) {
+  $("#SearchText").keypress(function(e) {
     if(e.which == 13){
       $searchBtn.click()
       // フォーカスを外す
@@ -196,19 +272,14 @@ function getData(searchValue, pageNum) {
 function viewPhoto(data) {
   const imageLists = data.map(function(image) {
     const imageId = image.id
-    return `<a class="flickerImage" href="detail.html?id=${imageId}"><img src="${image.url_q}" alt="${image.title}"></a>`
+    return `<a class="flickerImage" href="/detail.html?id=${imageId}"><img src="${image.url_q}" alt="${image.title}"></a>`
   })
-  $gallery.html(imageLists.join(''))
-  $(".flickerImage").on("click", function(e) {
-    e.preventDefault()
-    renderDetail(e.currentTarget.href)
-    console.log(e)
-    // console.log(e.currentTarget.href.replace(/http:\/\/\//, ""))
-  })
+  $("#Gallery").html(imageLists.join(''))
 }
 
 // ページャー表示
 function viewPager(currentPage, maxPages) {
+  const $pager = $(".Pager");
   const firstPageNum = 1;
   const lastPageNum = maxPages;
   // ページャーを表示するブロックの最大数
@@ -262,8 +333,8 @@ function setPagerEvent (target) {
 
 // リセット
 function resetGallery() {
-  $gallery.empty();
-  $pager.empty();
+  $("#Gallery").empty();
+  $(".Pager").empty();
 }
 
 main();
