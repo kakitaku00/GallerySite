@@ -111,6 +111,40 @@ input::-webkit-calendar-picker-indicator {
   color: #fff;
 }
 
+.Detail__contents {
+  text-align: center;
+}
+
+.Detail__title {
+  margin-bottom: 20px;
+}
+
+.Detail__image {
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+
+.Detail__btn {
+  border: 0;
+  margin: 0 auto;
+  font-size: 1.3em;
+  border: solid 1px #ccc;
+  max-width: 100px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.Detail__btn a {
+  color: #333;
+  display: block;
+  padding: 10px;
+  transition: .4s;
+}
+
+.Detail__btn a:hover {
+  opacity: .7;
+}
+
 .is-hide {
   display: none;
 }
@@ -120,7 +154,7 @@ input::-webkit-calendar-picker-indicator {
 }
 
 /* loading */
-.loading {
+/* .loading {
   position: fixed;
   top: 0;
   right: 0;
@@ -132,4 +166,4 @@ input::-webkit-calendar-picker-indicator {
   background-attachment: fixed;
   background-position: center center;
   background-size: 32px 32px;
-}
+} */
